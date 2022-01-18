@@ -1,141 +1,140 @@
-var SLIDES = [];
+const SLIDES = [];
 
-function Slideshow(config){
+function Slideshow(config) {
 
-	var self = this;
-	self.config = config;
+    const self = this;
+    self.config = config;
 
-	// DOM
-	self.dom = config.dom;
+    // DOM
+    self.dom = config.dom;
 
-	// Slide information
-	self.slides = config.slides;
+    // Slide information
+    self.slides = config.slides;
 
-	// Reset: INITIAL VARIABLES
-	self.reset = function(){
+    // Reset: INITIAL VARIABLES
+    self.reset = function () {
 
-		// On End?
-		if(self.currentSlide){
-			if(self.currentSlide.onend) self.currentSlide.onend(self);
-			unlisten(_); // hax
-		}
+        // On End?
+        if (self.currentSlide) {
+            if (self.currentSlide.onend) self.currentSlide.onend(self);
+            unlisten(_); // hax
+        }
 
-		// CLEAR
-		if(self.clear) self.clear();
+        // CLEAR
+        if (self.clear) self.clear();
 
-		// Reset
-		self.dom.innerHTML = "";
-		self.slideIndex = -1;
-		self.currentSlide = null;
-		self.objects = {};
+        // Reset
+        self.dom.innerHTML = "";
+        self.slideIndex = -1;
+        self.currentSlide = null;
+        self.objects = {};
 
-	};
-	self.reset();
+    };
+    self.reset();
 
-	//////////////////////////////////////////////////
-	/////////////// GO TO NEXT SLIDE /////////////////
-	//////////////////////////////////////////////////
+    //////////////////////////////////////////////////
+    /////////////// GO TO NEXT SLIDE /////////////////
+    //////////////////////////////////////////////////
 
-	// Go to next slide
-	self.nextSlide = function(){
+    // Go to next slide
+    self.nextSlide = function () {
 
-		// On End?
-		if(self.currentSlide && self.currentSlide.onend){
-			self.currentSlide.onend(self);
-		}
+        // On End?
+        if (self.currentSlide && self.currentSlide.onend) {
+            self.currentSlide.onend(self);
+        }
 
-		// Update the information
-		if(self.slideIndex >= self.slides.length-1) return;
-		self.slideIndex++;
-		self.currentSlide = self.slides[self.slideIndex];
+        // Update the information
+        if (self.slideIndex >= self.slides.length - 1) return;
+        self.slideIndex++;
+        self.currentSlide = self.slides[self.slideIndex];
 
-		// On Start
-		if(self.currentSlide.onstart){
-			self.currentSlide.onstart(self);
-		}
+        // On Start
+        if (self.currentSlide.onstart) {
+            self.currentSlide.onstart(self);
+        }
 
-		// Send out message!
-		publish("slideshow/slideChange", [self.currentSlide.id]);
+        // Send out message!
+        publish("slideshow/slideChange", [self.currentSlide.id]);
 
-	};
+    };
 
-	// Subscribe to "next slide" message...
-	subscribe("slideshow/next", function(){
-		self.nextSlide();
-	});
-
-
-
-	//////////////////////////////////////////////////
-	///////////// SLIDESHOW OBJECTS //////////////////
-	//////////////////////////////////////////////////
-
-	// Objects!
-	self.objects = {};
-
-	// Add Object
-	self.add = function(objectConfig){
-
-		// Create object
-		var Classname = window[objectConfig.type];
-		objectConfig.slideshow = self;
-		var obj = new Classname(objectConfig);
-		obj.slideshow = self;
-
-		// Remember it
-		self.objects[objectConfig.id] = obj;
-
-		// Add it for real!
-		return obj.add();
-
-	};
-
-	// Remove Object
-	self.remove = function(objectID){
-
-		// Find it...
-		var obj = self.objects[objectID];
-
-		// Remove from memory & DOM
-		delete self.objects[objectID];
-		return obj.remove();
-
-	};
-
-	// Clear: Remove ALL objects
-	self.clear = function(){
-		for(var id in self.objects) self.remove(id);
-	};
+    // Subscribe to "next slide" message...
+    subscribe("slideshow/next", function () {
+        self.nextSlide();
+    });
 
 
-	//////////////////////////////////////////////////
-	///////////// FORCE GO TO SLIDE //////////////////
-	//////////////////////////////////////////////////
+    //////////////////////////////////////////////////
+    ///////////// SLIDESHOW OBJECTS //////////////////
+    //////////////////////////////////////////////////
 
-	// FORCE go to a certain slide
-	self.gotoSlide = function(id){
+    // Objects!
+    self.objects = {};
 
-		// RESET IT ALL.
-		self.reset();
+    // Add Object
+    self.add = function (objectConfig) {
 
-		// Slide & SlideIndex
-		self.currentSlide = self.slides.find(function(slide){
-			return slide.id==id;
-		});
-		self.slideIndex = self.slides.indexOf(self.currentSlide);
+        // Create object
+        const Classname = window[objectConfig.type];
+        objectConfig.slideshow = self;
+        const obj = new Classname(objectConfig);
+        obj.slideshow = self;
 
-		// On JUMP & on Start
-		if(self.currentSlide.onjump) self.currentSlide.onjump(self);
-		if(self.currentSlide.onstart) self.currentSlide.onstart(self);
+        // Remember it
+        self.objects[objectConfig.id] = obj;
 
-		// Send out message!
-		publish("slideshow/slideChange", [self.currentSlide.id]);
+        // Add it for real!
+        return obj.add();
 
-	};
+    };
 
-	// Subscribe to the "force goto" message...
-	subscribe("slideshow/goto", function(id){
-		self.gotoSlide(id);
-	});
+    // Remove Object
+    self.remove = function (objectID) {
+
+        // Find it...
+        const obj = self.objects[objectID];
+
+        // Remove from memory & DOM
+        delete self.objects[objectID];
+        return obj.remove();
+
+    };
+
+    // Clear: Remove ALL objects
+    self.clear = function () {
+        for (let id in self.objects) self.remove(id);
+    };
+
+
+    //////////////////////////////////////////////////
+    ///////////// FORCE GO TO SLIDE //////////////////
+    //////////////////////////////////////////////////
+
+    // FORCE go to a certain slide
+    self.gotoSlide = function (id) {
+
+        // RESET IT ALL.
+        self.reset();
+
+        // Slide & SlideIndex
+        self.currentSlide = self.slides.find(function (slide) {
+            return slide.id === id;
+        });
+        self.slideIndex = self.slides.indexOf(self.currentSlide);
+
+        // On JUMP & on Start
+        if (self.currentSlide.onjump) self.currentSlide.onjump(self);
+        if (self.currentSlide.onstart) self.currentSlide.onstart(self);
+
+        // Send out message!
+        publish("slideshow/slideChange", [self.currentSlide.id]);
+
+    };
+
+    // Subscribe to the "force goto" message...
+    subscribe("slideshow/goto", function (id) {
+        self.gotoSlide(id);
+    });
 
 }

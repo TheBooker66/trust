@@ -60,14 +60,14 @@ SLIDES.push({
 
 	onstart: function(self){
 
-		var o = self.objects;
+		const o = self.objects;
 
 		// Payoff
 		o.iterated.oneoffHighlight1(_.answer);
 
 		// Text
-		var t = o.topWords;
-		var b = o.btmWords;
+		const t = o.topWords;
+		const b = o.btmWords;
 		if(_.answer=="COOPERATE"){
 			t.setText(Words.get("oneoff_1_cooperated")+"<br>"+Words.get("oneoff_1_top"));
 		}else{
@@ -90,13 +90,13 @@ SLIDES.push({
 
 	onstart: function(self){
 
-		var o = self.objects;
+		const o = self.objects;
 
 		// Payoff
 		o.iterated.oneoffHighlight2(_.answer);
 
 		// Text
-		var t = o.topWords;
+		const t = o.topWords;
 		if(_.answer=="COOPERATE"){
 			t.setText(Words.get("oneoff_2_cooperated")+"<br>"+Words.get("oneoff_2_top"));
 		}else{
